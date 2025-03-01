@@ -14,8 +14,8 @@ public class AppUI {
 
 
     public void displayMenu(){
-        System.out.print("\033[H\033[2J");  
-        System.out.flush();     
+        // System.out.print("\033[H\033[2J");  
+        // System.out.flush();     
         System.out.println(" _______________________________________________________________________");
         System.out.println("|                                                                       |");
         System.out.println("| " + menuHeader);
@@ -25,7 +25,7 @@ public class AppUI {
         System.out.println("|_______________________________________________________________________|");
     }
     
-    public double getNumInput(){
+    private double getNumInput(){
         double num = 0;
         while (true){
             try{
@@ -42,43 +42,91 @@ public class AppUI {
         return num;   
     }
     
-
-    public void runUI(){
+    private void setUpAccount(){
         menuHeader = "Welcome";
         menuBody = "Account Setup";
+        prompt = "Please enter your name: ";
+        displayMenu();
+        System.out.print(prompt);
+        String name = new Scanner(System.in).next();
+
+        menuHeader = "Welcome " + name;
         prompt = "Please enter an initial balance: ";
         displayMenu();
         double answer = getNumInput();
 
-        expenseTracker.setBalance(answer);
+        expenseTracker.createAccount(name, answer); 
+    }
+   
+    private void resetAccount(){
+        menuHeader = "Welcome";
+        menuBody = "Account Setup";
+        prompt = "Please enter your name: ";
+        displayMenu();
+        System.out.print(prompt);
+        String name = new Scanner(System.in).next();
 
+        menuHeader = "Welcome " + name;
+        prompt = "Please enter an initial balance: ";
+        displayMenu();
+        double answer = getNumInput();
+        
+        expenseTracker.resetAccount(name, answer); 
+    }
+  
+    private void recordExpense(){
+        menuHeader = "Record Expense";
+        prompt = "Please input the amount: ";
+        displayMenu();
+        double answer = getNumInput();
+        expenseTracker.recordExpense(answer);
+    }
+    
+    private void recordIncome(){
+        menuHeader = "Record Income";
+        prompt = "Please input the amount: ";
+        displayMenu();
+        double answer = getNumInput();
+        expenseTracker.recordIncome(answer);
+    }
+
+    private void setBalance(){
+        menuHeader = "Set Balance";
+        prompt = "Please input the amount: ";
+        displayMenu();
+        double answer = getNumInput();
+        expenseTracker.setBalance(answer);
+    }
+
+    public void runUI(){
+        //setup account if it doesn't exist
+        if (!expenseTracker.accountExists()) {
+            setUpAccount();
+        }
+
+        //run main menu
         while (true)
         {
+            menuHeader = "Welcome " + expenseTracker.getAccountName();
             menuBody = "Current Balance: " + String.valueOf(expenseTracker.getBalance());
-            prompt = "Good Day. What would you like to do?:\n\t1) Record an expense\n\t2) Record an income\n\t3) reset balance to 0\n\t4) Exit\nResponse: ";
+            prompt = "Good Day. What would you like to do?:\n\t1) Record an expense\n\t2) Record an income\n\t3) Set balance\n\t4) Reset account\n\t5) Exit\nResponse: ";
             displayMenu();
             System.out.println(prompt);
 
             String choice = new Scanner(System.in).next();
             if (choice.equals("1")){
-                menuHeader = "Record Expense";
-                prompt = "Please input the amount: ";
-                displayMenu();
-                answer = getNumInput();
-                expenseTracker.recordExpense(answer);
-    
+                recordExpense();
             }
             else if (choice.equals("2")){
-                menuHeader = "Record Income";
-                prompt = "Please input the amount: ";
-                displayMenu();
-                answer = getNumInput();
-                expenseTracker.recordIncome(answer);
+                recordIncome();
             }
             else if (choice.equals("3")){
-                expenseTracker.setBalance(0);
+               setBalance();
             }
             else if (choice.equals("4")){
+                resetAccount();
+            }
+            else if (choice.equals("5")){
                 break;
             }
             else{
