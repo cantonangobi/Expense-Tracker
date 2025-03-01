@@ -1,5 +1,6 @@
-package main.java.expensetracker;
+package expensetracker;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class AppUI {
@@ -109,7 +110,7 @@ public class AppUI {
         {
             menuHeader = "Welcome " + expenseTracker.getAccountName();
             menuBody = "Current Balance: " + String.valueOf(expenseTracker.getBalance());
-            prompt = "Good Day. What would you like to do?:\n\t1) Record an expense\n\t2) Record an income\n\t3) Set balance\n\t4) Reset account\n\t5) Exit\nResponse: ";
+            prompt = "Good Day. What would you like to do?:\n\t1) Record an expense\n\t2) Record an income\n\t3) Set balance\n\t4) Reset account\n\t5) View Transaction list\n\t6) Exit\nResponse: ";
             displayMenu();
             System.out.println(prompt);
 
@@ -127,6 +128,23 @@ public class AppUI {
                 resetAccount();
             }
             else if (choice.equals("5")){
+                
+                
+                // prompt = "Good Day. Your Transactions are as follows:\n\t   Type\tamount\tbalance\n\t1) type\tamount\tbalance\n\t2) type\tamount\tbalance\n\t3) type\tamount\tbalance\nEnter 0 to go back to main menu: ";
+                prompt = "Good Day. Your Transactions are as follows:\n\t|   Type\t|amount\t|balance|\n";
+                prompt = prompt +"\t|---------------|-------|-------|\n";
+                ArrayList<Transaction> transactions = expenseTracker.getTransactions();
+                for (int i = 0; i < transactions.size(); i++) {
+                    // System.out.println("\t" + String.valueOf(i+1) +") " + transactions.get(i).getType() + "\t" + String.valueOf(transactions.get(i).getAmount()) + "\t" + String.valueOf(transactions.get(i).getBalance()) +"\n");
+                    prompt = prompt + "\t|" + String.valueOf(i+1) +") " + transactions.get(i).getType() + "\t|" + String.valueOf(transactions.get(i).getAmount()) + "\t|" + String.valueOf(transactions.get(i).getBalance()) +"|\n";
+                }
+                prompt = prompt + "\nEnter 0 to go back to main menu: ";
+                displayMenu();
+                System.out.println(prompt);
+                choice = new Scanner(System.in).next();
+                continue;
+            }
+            else if (choice.equals("6")){
                 break;
             }
             else{

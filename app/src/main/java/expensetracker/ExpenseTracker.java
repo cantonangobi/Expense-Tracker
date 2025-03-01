@@ -1,22 +1,21 @@
-package main.java.expensetracker;
+package expensetracker;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class ExpenseTracker {
-    //Variables
     private Account account;
     // private String lastID;
-    private String saveFileName;
-    private boolean accountLoaded;
-    //private 
+    private String accountFileName, transactionFileName;
+    private boolean accountLoaded; 
 
 
-    //methods
     public ExpenseTracker(){
-        saveFileName = "account.csv";
+        accountFileName = "account.csv";
+        transactionFileName = "transactions.csv";
         accountLoaded = false;
         load();
     }
@@ -32,7 +31,9 @@ public class ExpenseTracker {
     }
 
     public void setBalance(double amount){
+        double difference = amount - account.getBalance();
         account.setBalance(amount);
+        account.addTransaction("adjustment", difference);
         save();
     }
 
@@ -42,11 +43,13 @@ public class ExpenseTracker {
 
     public void recordIncome(double amount){
         account.setBalance(account.getBalance() + amount);
+        account.addTransaction("income", amount);
         save();
     }
 
     public void recordExpense(double amount){
         account.setBalance(account.getBalance() - amount);
+        account.addTransaction("expense", amount);
         save();
     }
 
@@ -57,14 +60,30 @@ public class ExpenseTracker {
         accountLoaded = true;
     }
 
-    public void save(){
-        File file = new File(saveFileName);
-        String line = account.getUserID() + "," + account.getName() + "," + String.valueOf(account.getBalance() +"\n");
-        writeFile(file, line);
+    public ArrayList<Transaction> getTransactions(){
+        return account.geTransactions();
     }
 
-    public void load(){ 
-        File file = new File(saveFileName);
+    private void save(){
+        // boolean append = false;
+        File file = new File(accountFileName);
+        String line = account.getUserID() + "," + account.getName() + "," + String.valueOf(account.getBalance() +"\n");
+        writeFile(file, line, false);
+
+        file = new File(transactionFileName);
+        String content = "";
+        ArrayList<Transaction> transactions = account.geTransactions();
+        for (Transaction transaction : transactions) {
+            line = transaction.getID() + "," + transaction.getType() + "," + transaction.getAmount() + "," + transaction.getBalance() + "\n";
+            content = content + line;
+            
+        }
+        writeFile(file, content, false);
+    }
+    
+
+    private void load(){ 
+        File file = new File(accountFileName);
         
         if (file.isFile()) {
             String line = readFile(file);
@@ -73,6 +92,22 @@ public class ExpenseTracker {
                 account = new Account(words[0],words[1], Double.parseDouble(words[2]));
                 System.out.println(account.getName());
                 accountLoaded = true;
+            }
+        }
+
+        file = new File(transactionFileName);
+        if (file.isFile()){
+            String content = readFile(file);
+            if (!content.isEmpty()){
+                ArrayList<Transaction> transactions = new ArrayList<Transaction>();
+                String[] lines = content.split("\n");
+                for (String line : lines) {
+                    String[] words = line.split(",");
+                    transactions.add(new Transaction(words[0], words[1], Double.parseDouble(words[2]), Double.parseDouble(words[3])));
+                    account.setLastTXID(words[0]);
+                }
+                account.setTransactions(transactions);
+
             }
         }
     }
@@ -85,10 +120,10 @@ public class ExpenseTracker {
         return account.getName();
     }
 
-    private void writeFile(File file, String line){
+    private void writeFile(File file, String line, boolean append){
         try {
 
-            FileWriter writer = new FileWriter(file);
+            FileWriter writer = new FileWriter(file, append);
 
             writer.write(line);
             writer.close();
@@ -102,18 +137,18 @@ public class ExpenseTracker {
     }
 
     private String readFile(File file){
-        String line = "";
+        String lines = "";
         try{
             Scanner reader = new Scanner(file);
 
             // Traversing File Data
-            //   while (reader.hasNextLine()) {
-            //     lines = lines + reader.nextLine();
-            //     lines = lines + "\n";
-            // }
-            if (reader.hasNextLine()){
-                line = reader.nextLine();
+              while (reader.hasNextLine()) {
+                lines = lines + reader.nextLine();
+                lines = lines + "\n";
             }
+            // if (reader.hasNextLine()){
+            //     line = reader.nextLine();
+            // }
             
             reader.close();
 
@@ -122,7 +157,7 @@ public class ExpenseTracker {
             e.printStackTrace();
         }
         
-        return line;
+        return lines;
     }
 
 

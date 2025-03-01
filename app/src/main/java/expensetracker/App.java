@@ -3,8 +3,6 @@
  */
 package expensetracker;
 
-import main.java.expensetracker.AppUI;
-
 public class App {
     public String getGreeting() {
         return "Hello World!";
@@ -14,6 +12,7 @@ public class App {
     public static void main(String[] args) {
         System.out.println(new App().getGreeting());
         AppUI appUI = new AppUI();
+        
         appUI.runUI();
     }
 }
